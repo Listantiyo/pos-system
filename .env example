@@ -1,0 +1,31 @@
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=pos_system
+DB_SSLMODE=disable
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
+JWT_EXPIRY_HOURS=24
+REFRESH_TOKEN_EXPIRY_DAYS=7
+
+# Server
+PORT=8080
+ENVIROMENT=development
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+
+# POS Setting
+TAX_RATE=0.10
+DEFAULT_CURRENCY=IDR
+TIMEZONE=Asia/Jakarta
+
+# Feature Flags
+ENABLE_RATE_LIMITING=true
+ENABLE_CACHING=true
