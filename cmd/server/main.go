@@ -26,8 +26,8 @@ func main() {
 
 	// 3. Test Redis Connection
 	ctx := context.Background()
-	if err := db.Redis.Ping(ctx).Err; err != nil {
-		log.Fatal("Failed to connect to Redis:", err)
+	if err := db.Redis.Ping(ctx).Err(); err != nil {
+		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 	log.Println("✅ Connected to Redis")
 
@@ -43,22 +43,29 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	// Start server di goroutine
+	serverError := make(chan error, 1)
 	go func() {
 		log.Printf("🚀 Server starting on http://localhost:%s", cfg.AppPort)
-		err := srv.ListenAndServe()
-		if err != nil {
-			log.Fatal("Server error", err)
-		}
+		serverError <- srv.ListenAndServe()
 	}()
 
-	<-stop
-	log.Println("Server shutting down...")
+	select {
+	case err := <-serverError:
+		// Penting selalu validasi jenis error server, jika error ErrServerClosed itu karena perintah Ctrl + C
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server error: %v", err)
+		}
+	case sig := <-stop :
+		log.Printf("\n🛑 Signal received: %v", sig)
+		log.Println("Server shutting down...")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server shutdown error:", err)
+		os.Exit(1)
 	}
 
 	log.Println("Server stop gracefully")

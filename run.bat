@@ -1,0 +1,3 @@
+@echo off
+echo Starting POS System...
+go run ./cmd/server
